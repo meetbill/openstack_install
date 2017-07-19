@@ -1,0 +1,30 @@
+[base-centos]
+name=Base Centos Repos
+baseurl=http://103.216.120.159/repos/centos/7/os/x86_64/
+gpgcheck=1
+#gpgkey=gpgkey=http://103.216.120.159/repos/rpm-gpg/RPM-GPG-KEY-CentOS-7
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+enabled=1
+
+[virt-centos]
+name=Virt Centos Repos
+baseurl=http://103.216.120.159/repos/centos/7/virt/x86_64/kvm-common/
+gpgcheck=1
+#gpgkey=gpgkey=http://103.216.120.159/repos/rpm-gpg/RPM-GPG-KEY-CentOS-7
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+enabled=1
+
+[updates-centos]
+name=Updates Centos Repos
+baseurl=http://103.216.120.159/repos/centos/7/updates/x86_64/
+gpgcheck=1
+#gpgkey=gpgkey=http://103.216.120.159/repos/rpm-gpg/RPM-GPG-KEY-CentOS-7
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+enabled=1
+
+[openstack-mitaka-centos]
+name=OpenStack Mitaka Repository
+baseurl=http://103.216.120.159/repos/centos/7/cloud/x86_64/openstack-mitaka/
+gpgcheck=1
+enabled=1
+gpgkey=http://103.216.120.159/repos/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Cloud

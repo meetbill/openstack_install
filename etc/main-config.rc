@@ -1,0 +1,261 @@
+#!/bin/bash
+# 
+# Unattended installer for Openstack
+# 
+# Sample Config
+# version 1.0.1
+#
+
+#
+# Use Private Repository
+# 
+
+USE_PRIVATE_REPOS="no"
+
+DEFAULT_PASS="itnihao"
+
+# The hostname or IP address of a suitable more accurate (lower stratum) NTP server.
+# The configuration supports multiple server keys.
+# (Controller side)
+
+NTP_SERVERS="0.centos.pool.ntp.org 1.centos.pool.ntp.org 2.centos.pool.ntp.org 3.centos.pool.ntp.org"
+
+RABBIT_USER="openstack"
+RABBIT_PASS="$DEFAULT_PASS"
+MYSQL_PASS="$DEFAULT_PASS"
+TOKEN_PASS="$DEFAULT_PASS"
+ADMIN_PASS="$DEFAULT_PASS"
+DEMO_PASS="$DEFAULT_PASS"
+SERVICE_PASSWORD="$DEFAULT_PASS"
+METADATA_SECRET="$DEFAULT_PASS"
+
+# SERVICE_TENANT_NAME="service"
+# ADMIN_TENANT_NAME="admin"
+# DEMO_TENANT_NAME="demo"
+# INVIS_TENANT_NAME="invisible_to_admin"
+# ADMIN_USER_NAME="admin"
+# DEMO_USER_NAME="demo"
+
+ADMIN_RC_FILE="admin-openrc"
+DEMO_RC_FILE="demo-openrc"
+
+################################################################################################################
+#{{{account
+#
+# MARIADB INFORMATION
+# 
+
+MYSQLDB_ADMIN="root"
+MYSQLDB_PASSWORD="$DEFAULT_PASS"
+MYSQLDB_PASSWORD="$DEFAULT_PASS"
+MYSQLDB_PORT="3306"
+
+# OPENSTACK SERVICES DATABASE ACCESS INFORMATION
+#
+# Here we define the database name, database user and database user password.
+# In normal conditions, you should only need to change the password
+#
+
+# Keystone:
+KEYSTONE_DBNAME="keystone"
+KEYSTONE_DBUSER="keystone"
+KEYSTONE_DBPASS="$DEFAULT_PASS"
+# Glance
+GLANCE_DBNAME="glance"
+GLANCE_DBUSER="glance"
+GLANCE_DBPASS="$DEFAULT_PASS"
+# Neutron
+NEUTRON_DBNAME="neutron"
+NEUTRON_DBUSER="neutron"
+NEUTRON_DBPASS="$DEFAULT_PASS"
+# Nova
+NOVA_DBNAME="nova"
+NOVAAPI_DBNAME="nova_api"
+NOVA_DBUSER="nova"
+NOVA_DBPASS="$DEFAULT_PASS"
+# Cinder
+CINDER_DBNAME="cinder"
+CINDER_DBUSER="cinder"
+CINDER_DBPASS="$DEFAULT_PASS"
+# Swift
+SWIFT_DBNAME="swift"
+SWIFT_DBUSER="swift"
+SWIFT_DBPASS="$DEFAULT_PASS"
+
+#}}}
+################################################################################################################
+#{{{gluster config
+#
+#
+# OPENSTACK CLUSTER INFORMATION
+# 
+
+#
+# Sample config - 1 controller + 2 computes
+# CONTROLLER_NODES="controller"
+# CONTROLLER_NODES_IP="10.1.0.10"
+# COMPUTE_NODES="compute1 compute2"
+# COMPUTE_NODES_IP="10.1.0.11 10.1.0.12"
+# 
+# Sample config - All-In-One
+# CONTROLLER_NODES="controller"
+# CONTROLLER_NODES_IP="10.1.0.10"
+# COMPUTE_NODES=""
+# COMPUTE_NODES_IP=""
+
+# Controller Nodes
+# Specific Ip address - In this version, support 1 controller.
+# It'll be map to each other like controller - 10.1.0.10
+
+CONTROLLER_NODES="controller"
+CONTROLLER_NODES_IP="192.168.1.32"
+
+# Compute Nodes:
+# Specific Ip addresses
+# It'll be map to each other like compute1 - 10.1.0.11
+
+COMPUTE_NODES="compute1"
+COMPUTE_NODES_IP="192.168.1.128"
+
+#}}}
+################################################################################################################
+#{{{service
+#
+# OPENSTACK KEYSTONE
+# User declaration in Keystone
+# 
+
+INSTALL_KEYSTONE="yes"
+KEYSTONE_USER="keystone"
+KEYSTONE_SERVICE="keystone"
+KEYSTONE_PASS="$DEFAULT_PASS"
+
+################################################################################################################
+#
+# OPENSTACK GLANCE
+# 
+
+INSTALL_GLANCE="yes"
+GLANCE_USER="glance"
+GLANCE_PASS="$DEFAULT_PASS"
+GLANCE_SERVICE="glance"
+
+################################################################################################################
+#
+# OPENSTACK NOVA
+# 
+
+INSTALL_NOVA="yes"
+NOVA_USER="nova"
+NOVA_SERVICE="nova"
+NOVA_PASS="$DEFAULT_PASS"
+
+#
+# Over-subscription CPU/RAM/DISK control. Please read in openstack manuals what this mean.
+# You probably want to use those defaults... then again, maybe not.
+
+RAM_ALLOCATION_RATIO="1.5"
+CPU_ALLOCATION_RATIO="16.0"
+DISK_ALLOCATION_RATIO="1.0"
+
+#
+# Libvirt Type configuration
+# 
+
+VIRT_TYPE="kvm"
+
+################################################################################################################
+#
+# OPENSTACK NEUTRON
+#
+
+INSTALL_NEUTRON="yes"
+NEUTRON_USER="neutron"
+NEUTRON_PASS="$DEFAULT_PASS"
+NEUTRON_SERVICE="neutron"
+
+#
+# Choose ML2 Plugin
+# "openvswitch" or "linuxbridge"
+# 
+
+ML2_PLUGIN="linuxbridge"
+
+#
+# Choose network option
+# "self-service" or "provider"
+#
+
+NETWORK_OPT="self-service"
+
+# Also, you need to set up your network vlan ranges. Sample:
+# network_vlan_ranges="provider:1:20,provider:20:200,physical02:100:300"
+
+NETWORK_VLAN_RANGES="provider"
+FLAT_NETWORKS="provider"
+PROVIDER_INTERFACE="ens36"
+BRIDGE_MAPPINGS="provider:${PROVIDER_INTERFACE}"
+PROVIDER_BRIDGE="br-provider"
+
+# If you are going to use gre or vxlan, change the following variables according
+# to your preferences
+
+TUNNEL_ID_RANGES="1:100"
+VNI_RANGES="110:1000"
+
+# Replace OVERLAY_INTERFACE_IP_ADDRESS with the IP address of the interface
+# that handles VXLAN overlays for self-service networks.
+
+OVERLAY_INTERFACE_IP_ADDRESS=${CONTROLLER_NODES_IP}
+
+################################################################################################################
+#
+# OPENSTACK HORIZON
+#
+
+INSTALL_HORIZON="yes"
+TIMEZONE="Asia\/Shanghai"
+#}}}
+################################################################################################################
+#{{{option
+#
+# OPENSTACK SWIFT
+# 
+
+INSTALL_SWIFT="no"
+SWIFT_USER="swift"
+SWIFT_PASS="$DEFAULT_PASS"
+SWIFT_SERVICE="swift"
+
+# Swift replication information
+
+PARTITION_POWER="5"
+PARTITION_MIN_HOURS="1"
+REPLICA_COUNT="3"
+SWIFT_HASH="$DEFAULT_PASS"
+
+#
+# OPENSTACK CINDER
+#
+
+INSTALL_CINDER="no"
+CINDER_USER="cinder"
+CINDER_PASS="$DEFAULT_PASS"
+CINDER_SERVICE="cinder"
+CINDER_SERVICE_V2="cinderv2"
+
+# Depending of your volumen backend selection, set your default volume type. Our default is "lvm"
+
+DEFAULT_VOLUME_TYPE="lvm"
+
+# Our default is to use iscsi. Put here the iscsi server IP. It can be the one of the
+# controller, if you are using a LVM "cinder-volumes" inside the controller.
+
+CINDER_ISCSI_IP_ADDRESS="192.168.56.60"
+CINDER_LVMNAME="cinder-volumes"
+
+#}}}
+###############################################################################################################
+#
+# END OF THE CONFIGURATION FILE
+#
