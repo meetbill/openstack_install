@@ -137,7 +137,7 @@ verify_neutron()
 	echo ""
 	source /etc/openstack-control-script-config/$ADMIN_RC_FILE
 	echo "- Network agent list"
-	openstack network agent list
+	neutron agent-list
 	echo "- List loaded extension"
 	neutron ext-list
 	sync
