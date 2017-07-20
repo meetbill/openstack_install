@@ -33,7 +33,7 @@ install_configure_nova()
     echo ""
     yum -y install openstack-nova-compute
 
-    IP=`awk '/$1/ {print $1}' /etc/hosts`
+    IP=`grep $1 /etc/hosts | awk '{print $1}'`
 
     #
     # Using crudini we proceed to configure nova service

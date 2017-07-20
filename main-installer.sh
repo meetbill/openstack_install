@@ -299,6 +299,7 @@ main()
         # Install Compute Nodes
         #
 
+        HOSTNAME=`hostname`
         if [[ -z $COMPUTE_NODES ]] && ![[ $COMPUTE_NODES == *$HOSTNAME* ]]
         then
             echo ""
