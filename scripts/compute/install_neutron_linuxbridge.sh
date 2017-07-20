@@ -35,7 +35,7 @@ install_configure_neutron()
 		ebtables \
 		ipset
 
-    IP=`awk '/$1/ {print $2}' /etc/hosts`
+    IP=`awk '/$1/ {print $1}' /etc/hosts`
 
 	crudini --set /etc/neutron/neutron.conf DEFAULT auth_strategy keystone
 	crudini --set /etc/neutron/neutron.conf DEFAULT rpc_backend rabbit
