@@ -26,6 +26,10 @@
 > * [openstack 新建云主机内部流程](./doc/openstack.md)
 > * [提交bug](https://github.com/BillWang139967/openstack_install/issues)
 
+## 版本
+
+* v1.0.1 2017-07-20 新增：初始版本。
+
 ## 致谢
 
 本程序在原作者程序[openstack-mitaka-scripts](https://github.com/ntk148v/openstack-mitaka-scripts)上做了些修改,使之更适合自己使用。

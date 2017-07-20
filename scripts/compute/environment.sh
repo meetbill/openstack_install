@@ -58,9 +58,9 @@ configure_name_resolution()
 	# Append to /etc/hosts, skip if existed
 	for i in ${!temp_array_1[@]};
 	do
-		if ! grep -q "${temp_array_1[$i]} 	${temp_array_2[$i]}"  /etc/hosts;
+		if ! grep -q "${temp_array_2[$i]} 	${temp_array_1[$i]}"  /etc/hosts;
 		then
-			echo "${temp_array_1[$i]} 	${temp_array_2[$i]}" >> /etc/hosts
+			echo "${temp_array_2[$i]} 	${temp_array_1[$i]}" >> /etc/hosts
 		fi
 	done
 	echo "### Configure name resolution is Done!"
@@ -92,8 +92,6 @@ install_openstack_packages()
 	then
 		yum -y install centos-release-openstack-mitaka
 	fi
-	yum -y update
-	yum -y upgrade
 	yum -y install python-openstackclient openstack-selinux crudini
 }
 
