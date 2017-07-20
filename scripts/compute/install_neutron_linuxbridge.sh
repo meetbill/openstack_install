@@ -110,8 +110,8 @@ install_configure_neutron()
 		# 
 		
 		crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan enable_vxlan True
-		crudini --set /etc/neutron/plugins/ml2/openvswitch_agent.ini vxlan l2_population True
-		crudini --set /etc/neutron/plugins/ml2/openvswitch_agent.ini vxlan local_ip $IP
+		crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan l2_population True
+		crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan local_ip $IP
 		;;
 	*)
 		echo ""
