@@ -203,11 +203,6 @@ PROVIDER_BRIDGE="br-provider"
 TUNNEL_ID_RANGES="1:100"
 VNI_RANGES="110:1000"
 
-# Replace OVERLAY_INTERFACE_IP_ADDRESS with the IP address of the interface
-# that handles VXLAN overlays for self-service networks.
-
-OVERLAY_INTERFACE_IP_ADDRESS=${CONTROLLER_NODES_IP}
-
 ################################################################################################################
 #
 # OPENSTACK HORIZON

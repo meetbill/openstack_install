@@ -35,6 +35,8 @@ install_configure_neutron()
 		ebtables \
 		ipset
 
+    IP=`awk '/$1/ {print $2}' /etc/hosts`
+
 	crudini --set /etc/neutron/neutron.conf DEFAULT auth_strategy keystone
 	crudini --set /etc/neutron/neutron.conf DEFAULT rpc_backend rabbit
 	
@@ -87,7 +89,7 @@ install_configure_neutron()
 	# linuxbridge configuration
 	# 
 	
-	crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini linux_bridge physical_interface_mappings BRIDGE_MAPPINGS
+	crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini linux_bridge physical_interface_mappings ${BRIDGE_MAPPINGS}
 	crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini securitygroup enable_security_group True
 	crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini securitygroup firewall_driver neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
 
@@ -109,7 +111,7 @@ install_configure_neutron()
 		
 		crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan enable_vxlan True
 		crudini --set /etc/neutron/plugins/ml2/openvswitch_agent.ini vxlan l2_population True
-		crudini --set /etc/neutron/plugins/ml2/openvswitch_agent.ini vxlan local_ip $OVERLAY_INTERFACE_IP_ADDRESS
+		crudini --set /etc/neutron/plugins/ml2/openvswitch_agent.ini vxlan local_ip $IP
 		;;
 	*)
 		echo ""
@@ -146,7 +148,7 @@ verify_neutron()
 main()
 {
 	echo "### INSTALL_NEUTRON = $INSTALL_NEUTRON"
-	install_configure_neutron
+	install_configure_neutron $1
 	verify_neutron
 	date > /etc/openstack-control-script-config/neutron-linuxbridge-$1-installed
 }
