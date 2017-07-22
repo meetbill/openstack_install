@@ -37,8 +37,18 @@ install_configure_neutron()
 
     IP=`grep $1 /etc/hosts | awk '{print $1}'`
 
-	crudini --set /etc/neutron/neutron.conf DEFAULT auth_strategy keystone
+	#
+	# Olso Messaging Rabbit
+	#
+
 	crudini --set /etc/neutron/neutron.conf DEFAULT rpc_backend rabbit
+
+	crudini --set /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_host $CONTROLLER_NODES
+	crudini --set /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_userid openstack
+	crudini --set /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_password $RABBIT_PASS
+
+
+
 	
 	crudini --set /etc/neutron/neutron.conf oslo_concurrency lock_path /var/lib/neutron/tmp
 
@@ -46,10 +56,12 @@ install_configure_neutron()
 	# Neutron Keystone Config
 	#
 	
+    crudini --set /etc/neutron/neutron.conf DEFAULT auth_strategy keystone
+	
 	crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_uri http://$CONTROLLER_NODES:5000
 	crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_url http://$CONTROLLER_NODES:35357
-	crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_type password
 	crudini --set /etc/neutron/neutron.conf keystone_authtoken memcached_servers $CONTROLLER_NODES:11211
+	crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_type password
 	crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_name default
 	crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_name default
 	crudini --set /etc/neutron/neutron.conf keystone_authtoken project_name service
@@ -61,13 +73,6 @@ install_configure_neutron()
 	crudini --del /etc/neutron/neutron.conf keystone_authtoken admin_user
 	crudini --del /etc/neutron/neutron.conf keystone_authtoken admin_password
 
-	#
-	# Olso Messaging Rabbit
-	#
-
-	crudini --set /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_host $CONTROLLER_NODES
-	crudini --set /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_userid openstack
-	crudini --set /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_password $RABBIT_PASS
 
 	#
 	# Neutron Nova

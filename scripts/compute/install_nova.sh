@@ -71,8 +71,8 @@ install_configure_nova()
     # 
     crudini --set /etc/nova/nova.conf vnc enabled True
     crudini --set /etc/nova/nova.conf vnc vncserver_listen 0.0.0.0
-    crudini --set /etc/nova/nova.conf vnc vncserver_proxyclient_address $my_ip
-    crudini --set /etc/nova/nova.conf vnc novncproxy_base_url = http://$CONTROLLER_NODES:6080/vnc_auto.html
+    crudini --set /etc/nova/nova.conf vnc vncserver_proxyclient_address '$my_ip'
+    crudini --set /etc/nova/nova.conf vnc novncproxy_base_url  http://controller:6080/vnc_auto.html
 
     crudini --set /etc/nova/nova.conf glance api_servers http://$CONTROLLER_NODES:9292
     crudini --set /etc/nova/nova.conf oslo_concurrency lock_path /var/lib/nova/tmp
@@ -102,7 +102,7 @@ install_configure_nova()
     crudini --set /etc/nova/nova.conf DEFAULT disk_allocation_ratio $DISK_ALLOCATION_RATIO
 
     systemctl enable libvirtd.service openstack-nova-compute.service
-    systemctl start libvirtd.service openstack-nova-compute.service
+    systemctl restart libvirtd.service openstack-nova-compute.service
 }
 
 verify_nova()
