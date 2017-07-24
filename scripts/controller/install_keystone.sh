@@ -20,7 +20,7 @@ fi
 env_check()
 {
 
-    ，，，，，，，，，，，，，，，，if [[ -f /etc/openstack-control-script-config/keystone-installed ]]
+    if [[ -f /etc/openstack-control-script-config/keystone-installed ]]
     then
         echo ""
         echo "### This module was already completed. Exiting !"
@@ -30,7 +30,7 @@ env_check()
 
 }
 
-，，，，，，create_database()
+create_database()
 {
 	MYSQL_COMMAND="mysql --port=$MYSQLDB_PORT --password=$MYSQLDB_PASSWORD --user=$MYSQLDB_ADMIN "
 	MYSQL_COMMAND="mysql --port=$MYSQLDB_PORT --password=$MYSQLDB_PASSWORD --user=$MYSQLDB_ADMIN "
@@ -47,7 +47,7 @@ install_keystone()
 {
 	echo "### 2. Install Keystone packages"
 	#
-	，，# We proceed to install keystone packages and it's dependencies
+	# We proceed to install keystone packages and it's dependencies
 	#
 	yum -y install openstack-keystone httpd mod_wsgi openstack-utils
 	if [[ $? -eq 0 ]]
@@ -65,7 +65,7 @@ configure_keystone()
 	crudini --set /etc/keystone/keystone.conf DEFAULT admin_token $TOKEN_PASS
 	crudini --set /etc/keystone/keystone.conf database connection mysql+pymysql://$KEYSTONE_DBUSER:$KEYSTONE_DBPASS@$CONTROLLER_NODES/$KEYSTONE_DBNAME
 	crudini --set /etc/keystone/keystone.conf token provider fernet
-	su -s /，，，，，，，，，，，，，，，，，，，，，，，，，bin/sh -c "keystone-manage db_sync" $KEYSTONE_DBNAME
+	su -s /bin/sh -c "keystone-manage db_sync" $KEYSTONE_DBNAME
 	keystone-manage fernet_setup --keystone-user $KEYSTONE_USER --keystone-group keystone
 	echo "### Configure Keystone is Done"
 }
