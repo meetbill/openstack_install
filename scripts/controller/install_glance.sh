@@ -1,11 +1,13 @@
 #!/bin/bash
 #########################################################################
-# File Name: environment.sh
+# File Name: install_glance.sh
 # Author: meetbill
 # mail: meetbill@163.com
 # Created Time: 2017-07-17 19:05:07
 # Install Glance script
 #########################################################################
+
+set -e
 
 PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
 
@@ -17,6 +19,7 @@ else
 	echo ""
 	exit 0
 fi
+#{{{env_check
 env_check()
 {
     if [[ -f /etc/openstack-control-script-config/glance-installed ]]
@@ -27,6 +30,8 @@ env_check()
         exit 0
     fi
 }
+#}}}
+#{{{create_database
 create_database()
 {
 	MYSQL_COMMAND="mysql --port=$MYSQLDB_PORT --password=$MYSQLDB_PASSWORD --user=$MYSQLDB_ADMIN"
@@ -39,7 +44,8 @@ create_database()
 	sleep 5
 	sync
 }
-
+#}}}
+#{{{create_glance_identity
 create_glance_identity()
 {
 	source /etc/openstack-control-script-config/$ADMIN_RC_FILE
@@ -73,52 +79,70 @@ create_glance_identity()
 		sync
 	fi
 }
-
+#}}}
+#{{{install_configure_glance
 install_configure_glance()
 {
  	echo "### 3. Install Glance and Configure Glance configuration"
 	#
-	# Install glance package
+	# 1 Install glance package
 	# 
  	yum -y install openstack-glance
  	#
- 	# Using crudini we proceed to configure glance service
+ 	#  Using crudini we proceed to configure glance service
  	#
- 	crudini --set /etc/glance/glance-api.conf DEFAULT debug False
- 	crudini --set /etc/glance/glance-api.conf glance_store default_store file
-	crudini --set /etc/glance/glance-api.conf glance_store stores file,http,cinder
-	crudini --set /etc/glance/glance-api.conf DEFAULT show_multiple_locations True
-	crudini --set /etc/glance/glance-api.conf DEFAULT show_image_direct_url True
-	crudini --set /etc/glance/glance-api.conf glance_store filesystem_store_datadir /var/lib/glance/images/
-	crudini --set /etc/glance/glance-api.conf DEFAULT bind_host 0.0.0.0
-	crudini --set /etc/glance/glance-api.conf DEFAULT bind_port 9292
-	crudini --set /etc/glance/glance-api.conf DEFAULT log_file /var/log/glance/api.log
-	crudini --set /etc/glance/glance-api.conf DEFAULT backlog 4096
-	crudini --set /etc/glance/glance-api.conf DEFAULT use_syslog False
+ 	#
+ 	#  2 glance-api config
+ 	#
+    ## (2.1) configure database access
  	crudini --set /etc/glance/glance-api.conf database connection mysql+pymysql://$GLANCE_DBUSER:$GLANCE_DBPASS@$CONTROLLER_NODES/$GLANCE_DBNAME
- 	crudini --set /etc/glance/glance-registry.conf database connection mysql+pymysql://$GLANCE_DBUSER:$GLANCE_DBPASS@$CONTROLLER_NODES/$GLANCE_DBNAME
 
+    ## (2.2) configure Identity service access
  	crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_uri http://$CONTROLLER_NODES:5000
 	crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_url http://$CONTROLLER_NODES:35357
-	crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_type password
 	crudini --set /etc/glance/glance-api.conf keystone_authtoken memcached_servers $CONTROLLER_NODES:11211
+	crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_type password
 	crudini --set /etc/glance/glance-api.conf keystone_authtoken project_domain_name default
 	crudini --set /etc/glance/glance-api.conf keystone_authtoken user_domain_name default
 	crudini --set /etc/glance/glance-api.conf keystone_authtoken project_name service
 	crudini --set /etc/glance/glance-api.conf keystone_authtoken username $GLANCE_USER
 	crudini --set /etc/glance/glance-api.conf keystone_authtoken password $GLANCE_PASS
+	
+    crudini --set /etc/glance/glance-api.conf paste_deploy flavor keystone
 
+    #********************************************************************have a change
+	crudini --set /etc/glance/glance-api.conf glance_store stores file,http,cinder
+ 	crudini --set /etc/glance/glance-api.conf glance_store default_store file
+	crudini --set /etc/glance/glance-api.conf glance_store filesystem_store_datadir /var/lib/glance/images/
+
+ 	## Non standard configuration
+    #crudini --set /etc/glance/glance-api.conf DEFAULT debug False
+	#crudini --set /etc/glance/glance-api.conf DEFAULT show_multiple_locations True
+	#crudini --set /etc/glance/glance-api.conf DEFAULT show_image_direct_url True
+	#crudini --set /etc/glance/glance-api.conf DEFAULT bind_host 0.0.0.0
+	#crudini --set /etc/glance/glance-api.conf DEFAULT bind_port 9292
+	#crudini --set /etc/glance/glance-api.conf DEFAULT log_file /var/log/glance/api.log
+	#crudini --set /etc/glance/glance-api.conf DEFAULT backlog 4096
+	#crudini --set /etc/glance/glance-api.conf DEFAULT use_syslog False
+
+
+ 	#
+ 	#  3 glance-registry config
+ 	#
+    ## (3.1)configure database access
+ 	crudini --set /etc/glance/glance-registry.conf database connection mysql+pymysql://$GLANCE_DBUSER:$GLANCE_DBPASS@$CONTROLLER_NODES/$GLANCE_DBNAME
+
+    ## (3.2)configure Identity service access
 	crudini --set /etc/glance/glance-registry.conf keystone_authtoken auth_uri http://$CONTROLLER_NODES:5000
 	crudini --set /etc/glance/glance-registry.conf keystone_authtoken auth_url http://$CONTROLLER_NODES:35357
-	crudini --set /etc/glance/glance-registry.conf keystone_authtoken auth_type password
 	crudini --set /etc/glance/glance-registry.conf keystone_authtoken memcached_servers $CONTROLLER_NODES:11211
+	crudini --set /etc/glance/glance-registry.conf keystone_authtoken auth_type password
 	crudini --set /etc/glance/glance-registry.conf keystone_authtoken project_domain_name default
 	crudini --set /etc/glance/glance-registry.conf keystone_authtoken user_domain_name default
 	crudini --set /etc/glance/glance-registry.conf keystone_authtoken project_name service
 	crudini --set /etc/glance/glance-registry.conf keystone_authtoken username $GLANCE_USER
 	crudini --set /etc/glance/glance-registry.conf keystone_authtoken password $GLANCE_PASS
 
-	crudini --set /etc/glance/glance-api.conf paste_deploy flavor keystone
 	crudini --set /etc/glance/glance-registry.conf paste_deploy flavor keystone
 
 	sync
@@ -142,17 +166,18 @@ install_configure_glance()
 	sleep 5
 	sync
 }
-
+#}}}
+#{{{verify_glance
 verify_glance()
 {
 	echo ""
 	echo "### 5. Verify Glance installation"
 	echo ""
 	source /etc/openstack-control-script-config/$ADMIN_RC_FILE
-	wget http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
+	wget http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img
 	echo "- Create Image Cirros"
 	openstack image create "cirros" \
-		--file cirros-0.3.4-x86_64-disk.img \
+		--file cirros-0.3.5-x86_64-disk.img \
 		--disk-format qcow2 --container-format bare \
 		--public
 	echo "- Image list"
@@ -161,6 +186,8 @@ verify_glance()
 	sleep 5
 	sync
 }
+#}}}
+
 
 main()
 {
@@ -173,9 +200,14 @@ main()
 	date > /etc/openstack-control-script-config/glance-installed
 }
 
-if [ $# -gt 0  ]; then
-    input_type=$1
-    case ${input_type} in 
+usage="$0 install/config/check"
+if [ $# == 0 ];then
+    echo ${usage}
+else
+    case $1 in
+        install)
+            main
+            ;;
         config)
 	        install_configure_glance
             ;;
@@ -183,10 +215,10 @@ if [ $# -gt 0  ]; then
 	        source /etc/openstack-control-script-config/$ADMIN_RC_FILE
 	        openstack image list
             ;;
-            *)
-            echo "USAGE: $0 check|config" 
+        *)
+            echo ${usage}
+            exit 1
             ;;
-    esac
-else
-    main
+    esac                                                                                                                                       
 fi
+

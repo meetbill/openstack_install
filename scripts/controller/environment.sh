@@ -7,6 +7,8 @@
 # Environments config
 #########################################################################
 
+set -e 
+
 #{{{env_check
 env_check()
 {
@@ -96,7 +98,7 @@ install_openstack_packages()
 	echo "### 3. Enable the OpenStack repository"
 	if [[ $USE_PRIVATE_REPOS == "no" ]]
 	then
-		yum -y install centos-release-openstack-mitaka
+		yum -y install  centos-release-openstack-ocata
 	fi
 	#yum -y update
 	#yum -y upgrade
@@ -146,8 +148,8 @@ install_rabbitmq()
 	fi
 }
 #}}}
-#{{{install_memcaced
-install_memcaced()
+#{{{install_memcached
+install_memcached()
 {
 	echo "### 6. Install and create user with memcached"
 	yum -y install memcached python-memcached
@@ -171,7 +173,7 @@ main(){
 	install_openstack_packages
 	install_configure_sql_database
 	install_rabbitmq
-	install_memcaced
+	install_memcached
 	date > /etc/openstack-control-script-config/environment-installed
 }
 
