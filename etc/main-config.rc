@@ -23,7 +23,6 @@ NTP_SERVERS="0.centos.pool.ntp.org 1.centos.pool.ntp.org 2.centos.pool.ntp.org 3
 RABBIT_USER="openstack"
 RABBIT_PASS="$DEFAULT_PASS"
 MYSQL_PASS="$DEFAULT_PASS"
-TOKEN_PASS="$DEFAULT_PASS"
 ADMIN_PASS="$DEFAULT_PASS"
 DEMO_PASS="$DEFAULT_PASS"
 SERVICE_PASSWORD="$DEFAULT_PASS"
@@ -71,6 +70,7 @@ NEUTRON_DBPASS="$DEFAULT_PASS"
 # Nova
 NOVA_DBNAME="nova"
 NOVAAPI_DBNAME="nova_api"
+NOVACELL_DBNAME="nova_cell0"
 NOVA_DBUSER="nova"
 NOVA_DBPASS="$DEFAULT_PASS"
 # Cinder
@@ -108,7 +108,7 @@ SWIFT_DBPASS="$DEFAULT_PASS"
 # It'll be map to each other like controller - 10.1.0.10
 
 CONTROLLER_NODES="controller"
-CONTROLLER_NODES_IP="192.168.1.32"
+CONTROLLER_NODES_IP="192.168.1.2"
 
 # Compute Nodes:
 # Specific Ip addresses
@@ -149,6 +149,11 @@ INSTALL_NOVA="yes"
 NOVA_USER="nova"
 NOVA_SERVICE="nova"
 NOVA_PASS="$DEFAULT_PASS"
+
+###****************************************************ocata
+PLACEMENT_USER="placement"
+PLACEMENT_SERVICE="placement"
+PLACEMENT_PASS="${DEFAULT_PASS}"
 
 #
 # Over-subscription CPU/RAM/DISK control. Please read in openstack manuals what this mean.

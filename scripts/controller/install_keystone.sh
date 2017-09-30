@@ -1,12 +1,12 @@
 #!/bin/bash
 #########################################################################
-# File Name: environment.sh
+# File Name: install_keystone.sh
 # Author: meetbill
 # mail: meetbill@163.com
 # Created Time: 2017-07-17 19:05:07
 # Install Keystone script
 #########################################################################
-
+set -e
 
 if [[ -f /etc/openstack-control-script-config/main-config.rc ]]
 then
@@ -17,6 +17,7 @@ else
 	exit 0
 fi
 
+#{{{env_check
 env_check()
 {
 
@@ -27,12 +28,12 @@ env_check()
         echo ""
         exit 0
     fi
-
 }
-
+#}}}
+#{{{create_database
 create_database()
 {
-	MYSQL_COMMAND="mysql --port=$MYSQLDB_PORT --password=$MYSQLDB_PASSWORD --user=$MYSQLDB_ADMIN "
+	echo "### 1. create database Keystone"
 	MYSQL_COMMAND="mysql --port=$MYSQLDB_PORT --password=$MYSQLDB_PASSWORD --user=$MYSQLDB_ADMIN "
 	echo $MYSQL_COMMAND
 	echo "### 1. Creating Keystone database"
@@ -42,7 +43,8 @@ create_database()
 	echo "FLUSH PRIVILEGES;"|$MYSQL_COMMAND
 	sleep 5
 }
-
+#}}}
+#{{{install_keystone
 install_keystone()
 {
 	echo "### 2. Install Keystone packages"
@@ -58,78 +60,76 @@ install_keystone()
 		echo '### Error: install memcached'
 	fi
 }
-
+#}}}
+#{{{configure_keystone
 configure_keystone()
 {
 	echo "### 3. Configure Keystone"
-	crudini --set /etc/keystone/keystone.conf DEFAULT admin_token $TOKEN_PASS
+    # (2)config configfile
 	crudini --set /etc/keystone/keystone.conf database connection mysql+pymysql://$KEYSTONE_DBUSER:$KEYSTONE_DBPASS@$CONTROLLER_NODES/$KEYSTONE_DBNAME
 	crudini --set /etc/keystone/keystone.conf token provider fernet
+
+    # (3)Populate the Identity service database
 	su -s /bin/sh -c "keystone-manage db_sync" $KEYSTONE_DBNAME
+
+    # (4)Initialize Fernet key repositories:
 	keystone-manage fernet_setup --keystone-user $KEYSTONE_USER --keystone-group keystone
+    keystone-manage credential_setup --keystone-user $KEYSTONE_USER --keystone-group keystone
+
+    # (5)Bootstrap the Identity service:
+    keystone-manage bootstrap --bootstrap-password $ADMIN_PASS \
+        --bootstrap-admin-url http://controller:35357/v3/ \
+        --bootstrap-internal-url http://controller:5000/v3/ \
+        --bootstrap-public-url http://controller:5000/v3/ \
+        --bootstrap-region-id RegionOne
 	echo "### Configure Keystone is Done"
 }
-
+#}}}
+#{{{configure_http
 configure_http()
 {
 	echo "### 4. Configure HTTPD Server"
+    # (1)config configfile
 	sed -i -e "s/.*ServerName.*/ServerName $CONTROLLER_NODES/g" /etc/httpd/conf/httpd.conf
+
+    # (2)Create a link to the /usr/share/keystone/wsgi-keystone.conf file
 	[[ -f /etc/httpd/conf.d/wsgi-keystone.conf  ]] &&  rm /etc/httpd/conf.d/wsgi-keystone.conf
 	cp /etc/openstack-control-script-config/wsgi-keystone.conf /etc/httpd/conf.d/
+
 	systemctl enable httpd.service
 	systemctl start httpd.service
+
+    export OS_USERNAME=admin
+    export OS_PASSWORD=$ADMIN_PASS
+    export OS_PROJECT_NAME=admin
+    export OS_USER_DOMAIN_NAME=Default
+    export OS_PROJECT_DOMAIN_NAME=Default
+    export OS_AUTH_URL=http://controller:35357/v3
+    export OS_IDENTITY_API_VERSION=3
 	echo "### Configure HTTPD is Done"
 }
-
-create_service_entity_api_enpoints_user_role_domain()
+#}}}
+#{{{create_domain_project_user_roles
+create_domain_project_user_roles()
 {
-	echo "### 5. Create the service entity and API endpoints"
-	export OS_TOKEN=$TOKEN_PASS
-	export OS_URL=http://$CONTROLLER_NODES:35357/v3
-	export OS_IDENTITY_API_VERSION=3
-	while true
-	do
-		openstack service create --name \
-			$KEYSTONE_SERVICE --description "OpenStack Identity" identity
-		if [ $? -eq 0 ]
-		then
-			break
-		else
-			sleep 5
-		fi
-	done
-	# Create endpoint
-	echo "- Create Endpoints"
-	openstack endpoint create --region RegionOne \
-		identity public "http://$CONTROLLER_NODES:5000/v3"
-	openstack endpoint create --region RegionOne \
-		identity internal "http://$CONTROLLER_NODES:5000/v3"
-	openstack endpoint create --region RegionOne \
-		identity admin "http://$CONTROLLER_NODES:35357/v3"
-	# Create domain
-	echo "- Create Domain"
-	openstack domain create --description "Default Domain" default
-	# Create project, user and role
-	echo "- Create Projects, Users"
-	openstack project create --domain default \
-		--description "Admin Project" admin
-	openstack user create admin --domain default \
-		--password $ADMIN_PASS
-	openstack role create admin
-	openstack role add --project admin --user admin admin
+	echo "### 5. Create a domain,project,user,and roles"
+    ## (1)Create the service project
 	openstack project create --domain default \
 		--description "Service Project" service
+
+    ## (2)Create the demo project/user/role and Add the user role to the demo user of the demo project
 	openstack project create --domain default \
 		--description "Demo Project" demo
 	openstack user create demo --domain default \
     	--password $DEMO_PASS
     openstack role create user
     openstack role add --project demo --user demo user
+
     echo "Create Openstack client env scripts"
     # Create OpenStack client environment scripts
 cat > $ADMIN_RC_FILE <<eof
-export OS_PROJECT_DOMAIN_NAME=default
-export OS_USER_DOMAIN_NAME=default
+export OS_PROJECT_DOMAIN_NAME=Default
+export OS_USER_DOMAIN_NAME=Default
 export OS_PROJECT_NAME=admin
 export OS_USERNAME=admin
 export OS_PASSWORD=$ADMIN_PASS
@@ -139,8 +139,8 @@ export OS_IMAGE_API_VERSION=2
 eof
 	chmod +x $ADMIN_RC_FILE
 cat > $DEMO_RC_FILE <<eof
-export OS_PROJECT_DOMAIN_NAME=default
-export OS_USER_DOMAIN_NAME=default
+export OS_PROJECT_DOMAIN_NAME=Default
+export OS_USER_DOMAIN_NAME=Default
 export OS_PROJECT_NAME=demo
 export OS_USERNAME=demo
 export OS_PASSWORD=$DEMO_PASS
@@ -168,7 +168,8 @@ eof
 	source /etc/openstack-control-script-config/$DEMO_RC_FILE
 	openstack token issue
 }
-
+#}}}
+#{{{verify_keystone
 verify_keystone()
 {
 	echo ""
@@ -192,16 +193,14 @@ verify_keystone()
 	echo "- Roles:"
 	openstack role list
 	sleep 5
-	echo "- Endpoints:"
-	openstack endpoint list
-	sleep 5
-	echo ""
-	echo "### Applying IPTABLES rules"
-	echo ""
-	iptables -A INPUT -p tcp -m multiport --dports 5000,11211,35357 -j ACCEPT
-	service iptables save
+    echo "- Endpoints:"
+    openstack endpoint list
+	# echo "### Applying IPTABLES rules"
+    ## iptables
+	# iptables -A INPUT -p tcp -m multiport --dports 5000,11211,35357 -j ACCEPT
+	# service iptables save
 }
-
+#}}}
 main()
 {
 	echo "#### INSTALL_KEYSTONE = $INSTALL_KEYSTONE"
@@ -211,14 +210,19 @@ main()
 	install_keystone
 	configure_keystone
 	configure_http
-	create_service_entity_api_enpoints_user_role_domain
+	create_domain_project_user_roles
 	verify_keystone
 	date > /etc/openstack-control-script-config/keystone-installed
 }
 
-if [ $# -gt 0  ]; then
-    input_type=$1
-    case ${input_type} in 
+usage="$0 install/config/check"
+if [ $# == 0 ];then
+    echo ${usage}
+else
+    case $1 in
+        install)
+            main
+            ;;
         config)
 	        configure_keystone
             ;;
@@ -226,10 +230,10 @@ if [ $# -gt 0  ]; then
 	        source /etc/openstack-control-script-config/$ADMIN_RC_FILE
 	        verify_keystone
             ;;
-            *)
-            echo "USAGE: $0 check|config" 
+        *)
+            echo ${usage}
+            exit 1
             ;;
-    esac
-else
-    main
+    esac                                                                                                                                       
 fi
+
