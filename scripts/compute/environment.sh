@@ -23,7 +23,7 @@ then
 	echo "This module was installed. Exiting"
 	exit 0
 fi
-
+#{{{configure_name_resolution
 configure_name_resolution()
 {
 	echo "### 1. Hostname config"
@@ -65,8 +65,8 @@ configure_name_resolution()
 	done
 	echo "### Configure name resolution is Done!"
 }
-
-
+#}}}
+#{{{install_configure_ntp
 install_configure_ntp()
 {
 	echo "### 2. Install ntp-chrony"
@@ -83,18 +83,19 @@ install_configure_ntp()
 		echo '### Error: install chrony'
 	fi
 }
-
+#}}}
+#{{{install_openstack_packages
 install_openstack_packages()
 {
 
 	echo "### 3. Enable the OpenStack repository¶"
 	if [[ $USE_PRIVATE_REPOS == "no" ]]
 	then
-		yum -y install centos-release-openstack-mitaka
+		yum -y install centos-release-openstack-ocata
 	fi
 	yum -y install python-openstackclient openstack-selinux crudini
 }
-
+#}}}
 main(){
 	configure_name_resolution
 	install_configure_ntp
