@@ -124,7 +124,7 @@ install_configure_neutron()
     #
     # RabbitMQ Config
     #
-    crudini --set /etc/nova/nova.conf DEFAULT transport_url  rabbit://${RABBIT_USER}:${RABBIT_PASS}@${CONTROLLER_NODES}
+    crudini --set /etc/neutron/neutron.conf DEFAULT transport_url  rabbit://${RABBIT_USER}:${RABBIT_PASS}@${CONTROLLER_NODES}
 
     #
     # Neutron Keystone Config
