@@ -195,6 +195,7 @@ else
             main
             ;;
         config)
+            interface_check
             install_configure_neutron
             ;;
         check)
