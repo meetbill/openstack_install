@@ -161,7 +161,7 @@ main()
     env_check
     install_configure_nova
     verify_nova
-    date > /etc/openstack-control-script-config/nova-compute-installed
+    date > /etc/openstack-control-script-config/nova-${HOSTNAME}-installed
 }
 
 

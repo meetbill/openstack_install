@@ -1,0 +1,169 @@
+#!/bin/bash
+
+#{{{BackupControllerConfig
+function BackupControllerConfig(){
+	echo "---------------------------------------------------------------------"
+	echo "--backupControllerConfig--"
+        BACKFILE=`date +%Y%m%d%H%M%S`
+	#controller备份配置文件
+	mkdir -p /var/back/$BACKFILE
+	cp  /etc/my.cnf.d/openstack.cnf /var/back/$BACKFILE
+	cp  /etc/glance/glance-api.conf        /var/back/$BACKFILE
+	cp  /etc/glance/glance-registry.conf    /var/back/$BACKFILE
+	cp  /etc/nova/nova.conf              /var/back/$BACKFILE
+	cp  /etc/neutron/neutron.conf        /var/back/$BACKFILE
+	cp  /etc/neutron/plugins/ml2/ml2_conf.ini    /var/back/$BACKFILE
+	cp  /etc/neutron/plugins/ml2/linuxbridge_agent.ini     /var/back/$BACKFILE
+	cp  /etc/neutron/dhcp_agent.ini      /var/back/$BACKFILE
+	cp  /etc/neutron/metadata_agent.ini      /var/back/$BACKFILE
+	cp  /etc/neutron/l3_agent.ini             /var/back/$BACKFILE
+	cp  /etc/openstack-dashboard/local_settings    /var/back/$BACKFILE
+	cp  /etc/cinder/cinder.conf              /var/back/$BACKFILE
+	echo 'The controller configuration file is backed up!'
+	return 0
+}
+#}}}
+
+#{{{BackupComputeConfig
+function BackupComputeConfig(){
+        echo "---------------------------------------------------------------------"
+	echo "--backupComputeConfig--"
+	BACKFILE=`date +%Y%m%d%H%M%S`
+	#compute备份配置文件
+	mkdir -p /var/back/$BACKFILE
+	cp  /etc/nova/nova.conf       /var/back/$BACKFILE
+	cp  /etc/neutron/neutron.conf   /var/back/$BACKFILE
+	cp  /etc/neutron/plugins/ml2/linuxbridge_agent.ini  /var/back/$BACKFILE
+	echo 'The compute configuration file is backed up!'
+	return 0
+}
+#}}}
+
+#{{{BackupConfigMenu
+function BackupConfigMenu(){
+        #生成配置文件恢复选择菜单字符串
+        i=0
+        VARSTR=""
+        SPACECHAR=" "
+        for SNAPSHOYT in $(ls /var/back);
+        do
+            folder_list[i]=$SNAPSHOYT
+            i=`expr $i + 1`
+            VARSTR="$VARSTR$SPACECHAR$i$SPACECHAR$SNAPSHOYT"
+        done
+
+        #配置文件恢复选择菜单
+        OPTION=$(whiptail --title "Backup Config Menu" --menu "The Larger The Serial Number, The Closer The Backup Time Is" 25 70 15  $VARSTR  3>&1 1>&2 2>&3)
+        EXITSTATUS=$?
+        if [ $EXITSTATUS = 0 ]; then
+            echo "Your chosen option:" $OPTION
+            echo  ${folder_list[$OPTION-1]}
+            for DIRBACK in $(ls /var/back/${folder_list[$OPTION-1]});
+            #恢复过滤
+            do
+              echo $DIRBACK
+              if [ $DIRBACK = 'openstack.cnf' ]; then
+                 cp -r /var/back/${folder_list[$OPTION-1]}/${DIRBACK} /etc/my.cnf.d/openstack.cnf
+              elif [ $DIRBACK = 'glance-api.conf' ]; then
+                 cp -r /var/back/${folder_list[$OPTION-1]}/${DIRBACK} /etc/glance/glance-api.conf
+              elif [ $DIRBACK = 'glance-registry.conf' ]; then
+                 cp -r /var/back/${folder_list[$OPTION-1]}/${DIRBACK} /etc/glance/glance-registry.conf 
+              elif [ $DIRBACK = 'nova.conf' ]; then
+                 cp -r /var/back/${folder_list[$OPTION-1]}/${DIRBACK} /etc/nova/nova.conf
+              elif [ $DIRBACK = 'neutron.conf' ]; then
+                 cp -r /var/back/${folder_list[$OPTION-1]}/${DIRBACK} /etc/neutron/neutron.conf
+              elif [ $DIRBACK = 'ml2_conf.ini' ]; then
+                 cp -r /var/back/${folder_list[$OPTION-1]}/${DIRBACK} /etc/neutron/plugins/ml2/ml2_conf.ini
+              elif [ $DIRBACK = 'linuxbridge_agent.ini' ]; then
+                 cp -r /var/back/${folder_list[$OPTION-1]}/${DIRBACK} /etc/neutron/plugins/ml2/linuxbridge_agent.ini
+              elif [ $DIRBACK = 'dhcp_agent.ini' ]; then
+                 cp -r /var/back/${folder_list[$OPTION-1]}/${DIRBACK} /etc/neutron/dhcp_agent.ini
+              elif [ $DIRBACK = 'metadata_agent.ini' ]; then
+                 cp -r /var/back/${folder_list[$OPTION-1]}/${DIRBACK} /etc/neutron/metadata_agent.ini
+              elif [ $DIRBACK = 'l3_agent.ini' ]; then
+                 cp -r /var/back/${folder_list[$OPTION-1]}/${DIRBACK} /etc/neutron/l3_agent.ini
+              elif [ $DIRBACK = 'local_settings' ]; then
+                 cp -r /var/back/${folder_list[$OPTION-1]}/${DIRBACK} /etc/openstack-dashboard/local_settings
+              elif [ $DIRBACK = 'cinder.conf' ]; then
+                 cp -r /var/back/${folder_list[$OPTION-1]}/${DIRBACK} /etc/cinder/cinder.conf
+              fi
+            done
+        else
+        echo "You chose Cancel."
+        fi
+        return 0
+}
+#}}}
+
+
+#{{{RestoreControllerConfig
+function RestoreControllerConfig(){
+        echo "---------------------------------------------------------------------"
+        echo "--restoreControllerConfig--"
+        BackupConfigMenu       
+        echo "--The controller configuration file is restored--"
+        return 0
+}
+#}}}
+#{{{RestoreComputeConfig
+function RestoreComputeConfig(){
+        echo "---------------------------------------------------------------------"
+        echo "--restoreComputeConfig--"
+        BackupConfigMenu
+        echo "--The compute configuration file is restored--"
+        return 0
+}
+#}}}
+
+#{{{Openstack_help
+function Openstack_help(){
+    if [ $(hostname) = 'controller' ]; then
+            clear
+	    echo -e "==================controller_help======================" 
+	    echo 
+	    echo "-------------------------------------------------"
+	    echo
+	    echo "   openstacks -c       #backup  controller config"
+	    echo "   openstacks -rc      #restore controller config"
+	    echo
+	    echo "-------------------------------------------------"
+	    echo -e "\033[42;37m                version 1.1.1                    \033[m"
+	    echo -e "\033[42;37m                Time:2017-11-01                  \033[m"
+	    echo "-------------------------------------------------"
+    elif [ $(hostname) = 'compute1' ]; then
+            clear
+            echo -e "==================compute_help======================" 
+            echo 
+            echo "-------------------------------------------------"
+            echo
+            echo "   openstacks -p       #backup  compute    config"
+            echo "   openstacks -rp      #restore compute    config"
+            echo
+            echo "-------------------------------------------------"
+            echo -e "\033[42;37m                version 1.1.1                    \033[m"
+            echo -e "\033[42;37m                Time:2017-11-01                  \033[m"
+            echo "-------------------------------------------------"
+   fi  
+}
+#}}}
+
+
+
+case "$1" in
+   -c)
+        BackupControllerConfig
+    ;;
+   -p)
+        BackupComputeConfig
+    ;;
+   -rc)
+        RestoreControllerConfig
+    ;;
+   -rp)
+        RestoreComputeConfig
+    ;;
+   *)  
+        Openstack_help
+    exit 0
+esac
+ 
