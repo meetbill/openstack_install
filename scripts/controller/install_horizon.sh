@@ -18,7 +18,6 @@ else
     exit 0
 fi
 
-#{{{env_check
 env_check()
 {
 
@@ -29,9 +28,9 @@ env_check()
         echo ""
         exit 0
     fi
+
 }
-#}}}
-#{{{install_configure_horizon
+
 install_configure_horizon()
 {
     echo ""
@@ -114,13 +113,35 @@ eof
     echo ""
     setsebool -P httpd_can_network_connect on
 
+    #
+    # Patch - Material Theme is not properlly packaged. Some fonts are missing.
+    # Those command solve the situation:
 
-    #echo ""
-    #echo "### Applying IPTABLES rules"
-    #echo ""
+    yum -y install python2-XStatic-roboto-fontface roboto-fontface-common roboto-fontface-fonts mdi-common mdi-fonts python2-XStatic-mdi
+    yum -y reinstall python2-XStatic-roboto-fontface roboto-fontface-common roboto-fontface-fonts mdi-common mdi-fonts python2-XStatic-mdi
 
-    #iptables -A INPUT -p tcp -m multiport --dports 80,443,11211 -j ACCEPT
-    #service iptables save
+    if [[ ! -f /usr/share/openstack-dashboard/static/horizon/lib/roboto_fontface/fonts/Roboto-Regular.woff ]]
+    then
+        mkdir -p /usr/share/openstack-dashboard/static/horizon/lib/roboto_fontface/fonts
+        mkdir -p /usr/share/openstack-dashboard/openstack_dashboard/static/horizon/lib/font-awesome/fonts
+        mkdir -p /usr/share/openstack-dashboard/openstack_dashboard/static/horizon/lib/roboto_fontface/fonts
+        cp -v /usr/share/fonts/roboto_fontface/* /usr/share/openstack-dashboard/openstack_dashboard/static/horizon/lib/roboto_fontface/fonts
+        cp -v /usr/share/fonts/fontawesome/* /usr/share/openstack-dashboard/openstack_dashboard/static/horizon/lib/font-awesome/fonts
+    fi
+
+    if [[ ! -f /usr/share/openstack-dashboard/static/horizon/lib/mdi/fonts/materialdesignicons-webfont.woff ]]
+    then
+        mkdir -p /usr/share/openstack-dashboard/static/horizon/lib/mdi/fonts
+        mkdir -p /usr/share/openstack-dashboard/openstack_dashboard/static/horizon/lib/mdi/fonts
+        cp -v /usr/share/fonts/mdi/* /usr/share/openstack-dashboard/openstack_dashboard/static/horizon/lib/mdi/fonts/
+    fi
+
+    echo ""
+    echo "### Applying IPTABLES rules"
+    echo ""
+
+    iptables -A INPUT -p tcp -m multiport --dports 80,443,11211 -j ACCEPT
+    service iptables save
 
     echo ""
     echo "### Restart HTTP Serivce"
@@ -130,8 +151,7 @@ eof
     sleep 5
     sync
 }
-#}}}
-#{{{verify_horizon
+
 verify_horizon()
 {
     echo ""
@@ -140,7 +160,6 @@ verify_horizon()
     echo "- Account: admin/$ADMIN_PASS"
     echo ""
 }
-#}}}
 
 main()
 {

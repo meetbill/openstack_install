@@ -6,11 +6,11 @@ OpenStack是一个由NASA（美国国家航空航天局）和Rackspace合作研�
 
 组件逻辑关系图
 
-![Screenshot](./images/principle/logical.png)
+![Screenshot](../images/principle/logical.png)
 
 ## Openstack新建云主机流程图
 
-![Screenshot](./images/principle/vmcreate.png)
+![Screenshot](../images/principle/vmcreate.png)
 
 虚拟机创建过程：
 

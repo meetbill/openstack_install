@@ -130,6 +130,7 @@ install_controller()
             fi
         fi
 
+        exit
         #
         # Install Neutron service
         # 
@@ -159,7 +160,7 @@ install_controller()
                 #
                 # Install Neutron service with LinuxBridge
                 #
-                $TOP_DIR/scripts/controller/install_neutron_linuxbridge.sh ${DEPLOY_OP}
+                $TOP_DIR/scripts/controller/install_neutron_linuxbridge.sh
                 if [[ -f /etc/openstack-control-script-config/neutron-linuxbridge-installed ]]
                 then
                     echo ""
@@ -281,7 +282,7 @@ install_compute()
         # 
         
         $TOP_DIR/scripts/compute/install_nova.sh ${DEPLOY_OP}
-        if [[ -f /etc/openstack-control-script-config/nova-compute-installed ]]
+        if [[ -f /etc/openstack-control-script-config/nova-$HOSTNAME-installed ]]
         then
             echo ""
             echo "### OPENSTACK NOVA COMPUTE $HOSTNAME INSTALLED"
@@ -293,6 +294,7 @@ install_compute()
             exit 0
         fi
 
+        exit
         
         #
         # Install Neutron service
@@ -305,9 +307,9 @@ install_compute()
                 #
                 # Install Neutron service with OpenVSwitch
                 #
-                $TOP_DIR/scripts/compute/install_neutron_openvswitch.sh ${DEPLOY_OP}
+                $TOP_DIR/scripts/compute/install_neutron_openvswitch.sh $HOSTNAME
 
-                if [[ -f /etc/openstack-control-script-config/neutron-openvswitch-compute-installed ]]
+                if [[ -f /etc/openstack-control-script-config/neutron-openvswitch-$HOSTNAME-installed ]]
                 then
                     echo ""
                     echo "### OPENSTACK NEUTRON $HOSTNAME INSTALLED"
@@ -323,8 +325,8 @@ install_compute()
                 #
                 # Install Neutron service with LinuxBridge
                 #
-                $TOP_DIR/scripts/compute/install_neutron_linuxbridge.sh ${DEPLOY_OP}
-                if [[ -f /etc/openstack-control-script-config/neutron-linuxbridge-compute-installed ]]
+                $TOP_DIR/scripts/compute/install_neutron_linuxbridge.sh $HOSTNAME
+                if [[ -f /etc/openstack-control-script-config/neutron-linuxbridge-$HOSTNAME-installed ]]
                 then
                     echo ""
                     echo "### OPENSTACK NEUTRON $HOSTNAME INSTALLED"
@@ -360,7 +362,7 @@ main()
     echo "######################################################################################"
     echo "OPENSTACK UNATTENDED INSTALLER"
     echo "Flavor: OpenStack Mitaka for Centos 7"
-    echo "Version 1.1.1 2017/10/02"
+    echo "Version 1.0.0 March 1, 2017"
     echo ""
     echo "I'll verify all requiremens"
     echo "If any requirement is not met, I'll stop and inform what's missing"

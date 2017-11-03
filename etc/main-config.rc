@@ -243,7 +243,6 @@ CINDER_USER="cinder"
 CINDER_PASS="$DEFAULT_PASS"
 CINDER_SERVICE="cinder"
 CINDER_SERVICE_V2="cinderv2"
-CINDER_SERVICE_V3="cinderv3"
 
 # Depending of your volumen backend selection, set your default volume type. Our default is "lvm"
 
@@ -255,13 +254,6 @@ DEFAULT_VOLUME_TYPE="lvm"
 CINDER_ISCSI_IP_ADDRESS="192.168.56.60"
 CINDER_LVMNAME="cinder-volumes"
 
-## ceph
-RBD_POOL=volumes
-RBD_USER=cinder
-RBD_MAX_CLONE_DEPTH=5
-RBD_STORE_CHUNK_SIZE=4
-RADOS_CONNECT_TIMEOUT=-1
-RBD_SECRET_UUID=a852df2b-55e1-4c1b-9fa2-61e77feaf30f
 #}}}
 ###############################################################################################################
 #
