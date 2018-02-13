@@ -1,20 +1,20 @@
 # Installation OpenStack - CentOS 7.3
 <!-- vim-markdown-toc GFM -->
-* [arch](#arch)
+* [Arch](#arch)
 * [简介](#简介)
 * [使用](#使用)
 * [版本](#版本)
 * [参加步骤](#参加步骤)
 
 <!-- vim-markdown-toc -->
-## arch
+## Arch
 
 ![Screenshot](./doc/images/env/networklayout.png)
 
 ## 简介
 
 - 部署环境：Centos 7.3（两台）
-- 架构 controller + compute
+- 架构 Controller + Compute
 - Core services:
 	+ Keystone
 	+ Nova
@@ -30,12 +30,12 @@
 请先阅读([官网](https://docs.openstack.org/))，理解，然后行动(初次使用时，先手动部署一遍，然后使用本程序进行部署)
 
 > * [使用手册](https://github.com/BillWang139967/openstack_install/wiki)
-> * [提交 bug](https://github.com/BillWang139967/openstack_install/issues)
+> * [提交 Bug](https://github.com/BillWang139967/openstack_install/issues)
 
 ## 版本
 
-* v1.1.1 2017-12-02 更新：更新版本为 ocata。
-* v1.0.1 2017-07-20 新增：初始版本 (mitaka)。
+* v1.1.1 2017-12-02 更新：更新版本为 Ocata
+* v1.0.1 2017-07-20 新增：初始版本 (Mitaka)
 
 ## 参加步骤
 

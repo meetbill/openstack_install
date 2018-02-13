@@ -81,12 +81,7 @@ install_configure_neutron()
 	echo ""
 	echo "### 3. Install Neutron Packages and Configure Neutron configs"
 	echo ""
-	yum install -y openstack-neutron \
-		openstack-neutron-openvswitch \
-		openstack-neutron-ml2 \
-		python-neutron \
-		python-neutronclient \
-		ebtables
+	yum install -y openstack-neutron openstack-neutron-openvswitch openstack-neutron-ml2 python-neutron python-neutronclient ebtables
 
 	cat << EOF >> /etc/sysctl.conf
 net.ipv4.ip_nonlocal_bind = 1

@@ -104,10 +104,7 @@ install_configure_neutron()
     echo "### 3. Install Neutron Packages and Configure Neutron configs"
     echo ""
     #********************************************************************have a change
-    yum install -y openstack-neutron  openstack-neutron-ml2 \
-        openstack-neutron-linuxbridge ebtables \
-        python-neutron \
-        python-neutronclient
+    yum install -y openstack-neutron  openstack-neutron-ml2 openstack-neutron-linuxbridge ebtables python-neutron python-neutronclient
 
     #
     # Database configuration

@@ -104,9 +104,7 @@ install_configure_nova()
     echo ""
     echo "### 3. Install Nova Packages and Configure Nova configs"
     echo ""
-    yum -y install openstack-nova-api openstack-nova-conductor \
-        openstack-nova-console openstack-nova-novncproxy \
-        openstack-nova-scheduler openstack-nova-placement-api
+    yum -y install openstack-nova-api openstack-nova-conductor openstack-nova-console openstack-nova-novncproxy openstack-nova-scheduler openstack-nova-placement-api
     #
     # Using crudini we proceed to configure nova service
     #
